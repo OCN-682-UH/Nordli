@@ -1,7 +1,6 @@
-######## Intro to Plotting: ggplot ########
+######## Notes from Lecture: Intro to Plotting; ggplot ########
 ### Created by: Linnea Nordli
 ### Created on: 2026-09-11
-### Updated on: 
 ### Week 3 
 ####################################
 
