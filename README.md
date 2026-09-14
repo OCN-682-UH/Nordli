@@ -7,8 +7,9 @@ This will be where I submit my weekly assignments for the class _Data Science Fu
 * **Week_02**: Scripts and Workflow
   *   [Data](https://github.com/OCN-682-UH/Nordli/tree/ad7bc99f798725efd41ecb2f3540f7b4b336fc0f/Week_02/Data)
   *   [Scripts](https://github.com/OCN-682-UH/Nordli/tree/ad7bc99f798725efd41ecb2f3540f7b4b336fc0f/Week_02/Scripts)
-* **Week_03**: Intro to Plotting
-  *  [Scripts](https://github.com/OCN-682-UH/Nordli/tree/2d8cfef661f5fbe2e14a84fd4748b7353a8256fe/Week_03/Scripts)
+* **Week_03**: Intro to Plotting: ggplot2
+  *  [Scripts](https://github.com/OCN-682-UH/Nordli/tree/c4fecbb176bd038e4a722e3bb49cd5c4fddc4c57/Week_03/Scripts)
+  *  [Outputs](https://github.com/OCN-682-UH/Nordli/tree/c4fecbb176bd038e4a722e3bb49cd5c4fddc4c57/Week_03/Outputs)
 
 ## About Me
 ![Geiranger Fjorden][Norway]
