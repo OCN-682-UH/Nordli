@@ -75,7 +75,7 @@ ChemData_clean <- chem_data |>
                        delim = "_",
                        names = c("Tide","Time"),
                        cols_remove = FALSE)
-view(ChemData_clean) # # separate day and tide column into two columns, and keep the original column
+view(ChemData_clean) # separate day and tide column into two columns, and keep the original column
 
 ChemData_clean <- chem_data |> 
   drop_na() |> 
