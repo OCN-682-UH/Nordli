@@ -17,7 +17,7 @@ This will be where I submit my weekly assignments for the class _Data Science Fu
 * **Week_05**: Data Wrangling (lubridate)
   * [Data](https://github.com/OCN-682-UH/Nordli/tree/735d1b376da1a0914950bf0ae4286a65cff381d9/Week_05/Data)
   * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/735d1b376da1a0914950bf0ae4286a65cff381d9/Week_05/Scripts)
-  * [Outputs](https://github.com/OCN-682-UH/Nordli/tree/735d1b376da1a0914950bf0ae4286a65cff381d9/Week_05/Outputs)
+  * [Outputs](https://github.com/OCN-682-UH/Nordli/tree/3b41f0b6046e3f5799bc8bff8528c1ce29c9644a/Week_05/Outputs)
 
 ## About Me
 ![Geiranger Fjorden][Norway]
