@@ -20,6 +20,8 @@ This will be where I submit my weekly assignments for the class _Data Science Fu
   * [Outputs](https://github.com/OCN-682-UH/Nordli/tree/3b41f0b6046e3f5799bc8bff8528c1ce29c9644a/Week_05/Outputs)
 * **Week_06**: Quarto
   * [HW HTML](https://01a10ae4-2ee7-39e7-3ded-688e0e0d4a06.share.connect.posit.cloud)
+  * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/4e26a07d314a6bab03b9c0c196242a0214ec889c/Week_06/Scripts)
+  * [Outputs](https://github.com/OCN-682-UH/Nordli/tree/4e26a07d314a6bab03b9c0c196242a0214ec889c/Week_06/Outputs)
 
 ## About Me
 ![Geiranger Fjorden][Norway]
