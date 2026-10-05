@@ -1,0 +1,87 @@
+---
+title: "Week 6 Homework - Introduction to Quarto"
+author: "Linnea Nordli"
+format: 
+  html:
+    code-fold: true # code hidden by default, with a toggle button
+    code-summary: "Show code" # customize button label 
+    mainfont: "Times new roman" # main body text
+    fontsize: 12pt # main font size
+    fontcolor: black # main font color
+    embed-resources: true # avoids the extra folders by placing outputs into the HTML itself 
+    toc: true
+    toc-depth: 2
+    toc-location: right
+    toc-title: "Table of Contents"
+editor: visual
+warning: false
+theme: lumen
+---
+
+# Create the most beautiful Quarto output using datasheets worked with in class 
+Must create *at least* one figure and one table, both need to be **publication ready** and **aesthetically pleasing**. A few things to consider:
+
+- Clear headings, titles, and legends
+- Captions for figure and table
+- Nice themes
+
+```{r}
+#| echo: false
+# Load libraries
+library(tidyverse)
+library(palmerpenguins)
+library(kableExtra)
+library(here)
+
+# Assign dataset
+pengdata <- penguins
+```
+
+## Create figure using penguin data from palmerpenguins
+```{r}
+#| label: fig-bodymass-flipper
+#| fig-cap: "A scatterplot depicting body mass vs. flipper length for three penguin species. Color points are grouped by penguin species as shown in the legend on the right. Solid color lines indicate best fit line by linear regressions, with 95% Confidence Intervals shown in the respective shaded areas for each species."
+#| fig-align: "center"
+#| fig-height: 4
+#| fig-width: 6
+pengdata |> 
+  ggplot(aes(x=body_mass_g, y=flipper_length_mm, color=species))+ # map body mass by flipper length
+  geom_point()+ # add individual observations as scatterplot
+  geom_smooth(method = lm)+ # add linear regression, with shading of 95% Confidence Intervals 
+  labs(x="Body Mass (g)", y="Flipper Length (mm)", color="Species")+ # change axes and legend names
+  theme_bw()+
+  theme(axis.title = element_text(size = 12))+
+  scale_colour_viridis_d()
+```
+
+
+```{r}
+#| echo: false
+# separately assign to object, when i tried to assign in the code above the figure would not display on HTML file
+plot <- pengdata |> 
+  ggplot(aes(x=body_mass_g, y=flipper_length_mm, color=species))+ # map body mass by flipper length
+  geom_point()+ # add individual observations as scatterplot
+  geom_smooth(method = lm)+ # add linear regression, with shading of 95% Confidence Intervals 
+  labs(x="Body Mass (g)", y="Flipper Length (mm)", color="Species")+ # change axes and legend names
+  theme_bw()+
+  theme(axis.title = element_text(size = 12))+
+  scale_colour_viridis_d()
+
+ggsave(here("Week_06", "Outputs", "HW_plot_mass_flipper.png"), create.dir = TRUE)
+```
+
+## Create table using penguin data from palmerpenguins
+```{r}
+#| label: tbl-bodymass-flipper
+#| tbl-cap: "Mean body mass and flipper length for three penguin species."
+pengdata |> 
+  group_by(species) |> 
+  summarise(BodyMass = mean(body_mass_g, na.rm = TRUE), 
+            FlipperLength = mean(flipper_length_mm, na.rm = TRUE)) |> 
+  kbl(col.names = c("Species", "Mean body mass (g)", "Mean flipper length (mm)"), align = "ccc") |> 
+  kable_classic() |> 
+  kable_styling(full_width = FALSE)
+```
+
+## Conclusion
+As shown in @fig-bodymass-flipper, Gentoo penguins display the largest body mass and longest flippers. @tbl-bodymass-flipper shows the individual values of average body mass and flipper length by the three penguin species.

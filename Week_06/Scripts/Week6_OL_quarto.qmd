@@ -1,0 +1,70 @@
+---
+title: "Week 6 - Online Lecture: Quarto"
+author: "Linnea Nordli"
+format: 
+  html:
+    code-fold: true # code hidden by default, with a toggle button
+    code-summary: "Show code" # customize button label 
+editor: visual
+warning: false
+knitr:
+  opts_chunk:
+    fig.path: "Week_06/Outputs/"
+---
+
+# Heading 1 
+```{r}
+# load libraries
+library(palmerpenguins)
+library(tidyverse)
+library(kableExtra)
+
+
+# assign dataset
+pengdata <- penguins
+
+# make simple plot
+pengdata |> 
+  ggplot(aes(x=bill_length_mm, y=bill_depth_mm))+
+  geom_point()
+
+# change figure
+#|fig-align: "center"
+#|label: penguin # labels plot as penguin if want to reference it in the text elsewhere
+#|fig-cap: "This is my figure" # adds fig caption
+pengdata |> 
+  ggplot(aes(x=bill_length_mm, y=bill_depth_mm))+
+  geom_point()
+
+
+```
+
+
+**Working with tables**
+```{r}
+#| label: tbl-penguin-means
+#| tbl-cap: "Mean bill length by species"
+pengdata |>
+  group_by(species) |>
+  summarise(billmean = mean(bill_length_mm, na.rm = TRUE)) |>
+  kbl()  |> # make it a kable table
+  kable_classic() |> # add a theme
+  row_spec(2, bold = TRUE, color = "white", background = "red") |> # highlight row 2
+  kable_styling(full_width = FALSE) # don't make it so wide
+```
+As shown in @tbl-penguin-means, the Chinstrap species have the largest bill dimensions. 
+ 
+ 
+**Cross-references**
+```{r}
+#| label: fig-penguin-bill
+#| fig-cap: "Bill length vs. bill depth for three penguin species."
+#| echo: false
+
+ggplot(pengdata, aes(x = bill_depth_mm, y = bill_length_mm, color = species)) +
+  geom_point() +
+  scale_color_viridis_d()
+```
+As shown in @fig-penguin-bill, bill dimensions differ clearly by species.  
+
+
