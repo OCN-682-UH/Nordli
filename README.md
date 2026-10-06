@@ -27,10 +27,10 @@ This will be where I submit my weekly assignments for the class _Data Science Fu
 
 <img src="https://github.com/user-attachments/assets/d72120dd-9050-4306-9d66-0114b7b80b21" alt="Oreo, a tuxedo cat" width="900" />
 
-My name is Linnea Nordli. I am born and raised in Norway, but have been living on O'ahu since 2019. I have a little rescue kitten named Oreo who is super cute but also part-time demon. He is a beautiful tuxedo cat.
+My name is Linnea Nordli. I was born and raised in Norway, but have been living on O'ahu since 2019. This is my little rescue kitten named Oreo, whom I am obsessed with but he's also part-time demon.
 
 ### Graduate Life
-I am a first year master's student in the Marine Biology Graduate Program and I am in Chris Wall's lab. I will be studying anthropogenic disturbance on coral reef ecosystems!
+I am a first year master's student in the Marine Biology Graduate Program and I am in the Wall lab. I will be studying anthropogenic disturbance on coral reef ecosystems! 
 
 
 
