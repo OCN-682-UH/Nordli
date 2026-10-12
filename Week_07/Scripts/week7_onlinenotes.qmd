@@ -1,0 +1,156 @@
+---
+title: "Week 7 Online Lecture - Maps Part 2"
+author: "Linnea Nordli"
+format: 
+  html:
+    code-fold: true # code hidden by default, with a toggle button
+    code-summary: "Show code" # customize button label 
+    mainfont: "Times new roman" # main body text
+    fontsize: 12pt # main font size
+    fontcolor: black # main font color
+    embed-resources: true # avoids the extra folders by placing outputs into the HTML itself 
+    toc: true
+    toc-depth: 2
+    toc-location: right
+    toc-title: "Table of Contents"
+editor: visual
+warning: false
+theme: lumen
+---
+
+## Install packages
+```{r}
+#| eval: false
+install.packages(c(
+  "maptiles",      # download tile basemaps (satellite, street, terrain)
+  "tidyterra",     # plot terra rasters in ggplot2
+  "leaflet",       # interactive HTML maps
+  "tidygeocoder",  # free geocoding (OpenStreetMap / Census)
+  "ggspatial"      # scale bars and north arrows
+  ))
+```
+
+## Load libraries
+```{r}
+library(tidyverse)
+library(here)
+library(sf)
+library(maptiles)
+library(tidyterra)
+library(leaflet)
+library(tidygeocoder)
+library(ggspatial)
+```
+
+## Import Data
+```{r}
+ChemData <- read_csv(here("Week_07", "data", "chemicaldata_maunalua.csv"))
+
+glimpse(ChemData)
+```
+
+## Tile and satellite basemaps with {maptiles}
+{maptiles} downloads satellite and street map tiles from free public providers directly into R. Maps are made of thousands of pixel tiles stitched together. Tiles are organized by **zoom level** and **grid position**.
+
+- At zoom 1, a handful of tiles covers the whole world
+- At zoom 17, thousands of tiles cover a single neighborhood
+- maptiles figures out which tiles you need, downloads them, and stitches them into one image
+
+### Step 1 - Define Interest Area
+get_tiles() needs a bounding box, a rectable defined by corner coordinates, to know what area to download
+```{r}
+# Define a bounding box around Wailupe, Oahu
+# xmin/xmax = westmost/eastmost longitude
+# ymin/ymax = southernmost/northernmost latitude
+wailupe_bbox <- st_as_sfc( # converts it to a spatial geometric object
+  st_bbox(c(xmin = -157.772, ymin = 21.267,
+            xmax = -157.752, ymax = 21.281),
+          crs = 4326) # crs = 4326 means WGS84 — the lat/lon system your GPS uses
+)
+```
+### Step 2 - Download the Tiles
+```{r}
+tiles_satellite <- get_tiles( # creates a SpatRaster (grid of pixels) from {terra} package
+  wailupe_bbox,               # the area to download
+  provider = "Esri.WorldImagery", # which tile source to use
+  zoom = 16,                  # level of detail (3 = continent, 20 = building)
+  crop = TRUE,                # clip to our exact bbox (vs. slightly larger)
+  cachedir = here("Week_07", "Data", "tiles_cache") # save tiles to disk
+)
+```
+### Step 3 - Plot
+```{r}
+# geom_spatraster_rgb() is from {tidyterra}
+# It reads the 3 color layers and renders them as a photo
+ggplot() +
+  geom_spatraster_rgb(data = tiles_satellite) +
+  coord_sf(crs = 4326) +
+  theme_minimal()
+```
+### Different Tile Providers
+Just change the *provider* string in get_tiles — all are free with no API key:
+
+| **Provider String**  | **Style**      |
+|:---------------------|:---------------|
+| "Esri.WorldImagery"  | Satellite      |
+| "OpenStreetMap"      | Street map     |
+| "CartoDB.Positron"   | Minimal/clean  |
+| "Esri.WorldStreetMap"| ESRI street    |
+| "Esri.WorldTerrain"  | Shaded terrain |
+
+### Derive Bbox from your data
+Instead of hard-coding coordinates, generate the bounding box directly from your data:
+
+#### Step 1: convert your data frame to an sf object
+```{r}
+ChemData_sf <- st_as_sf(ChemData,
+                         coords = c("Long", "Lat"), # coords tells sf which columns hold longitude and latitude
+                         crs = 4326)
+```
+#### Step: 2: get the bounding box and add a small buffer
+```{r}
+bbox_chem <- st_bbox(ChemData_sf) + c(-0.004, -0.004, 0.004, 0.004) # the + c(...) pads all four sides by ~0.4 km so points aren't at the edge
+```
+#### Step 3: download tiles for that extent
+```{r}
+Map_satellite <- get_tiles(
+  st_as_sfc(bbox_chem),
+  provider = "Esri.WorldImagery",
+  zoom = 15,
+  crop = TRUE,
+  cachedir = here("Week_07", "Data", "tiles_cache")
+)
+```
+#### Step 4: Overlay Data Point
+```{r}
+ggplot() +
+  geom_spatraster_rgb(data = Map_satellite) +
+  geom_point(data = ChemData,
+             aes(x = Long, y = Lat,
+                 color = Salinity),
+             size = 4) +
+  scale_color_viridis_c() +
+  coord_sf(crs = 4326) +
+  theme_minimal()
+```
+## Overlaying data + annotations with {ggspatial}
+{ggspatial} provides two annotation functions that are spatial-aware — they calculate real-world distances and magnetic north automatically.
+
+### Add a Scale Bar and North Arrow
+```{r}
+ggplot() +
+  geom_spatraster_rgb(data = Map_satellite) +
+  geom_point(data = ChemData,
+             aes(x = Long, y = Lat,
+                 color = Salinity),
+             size = 4) +
+  scale_color_viridis_c() +
+  annotation_scale(           # scale bar
+    location = "bl",          # bl = bottom-left
+    bar_cols = c("yellow", "white")) +
+  annotation_north_arrow(     # north arrow
+    location = "tl") +        # tl = top-left
+  coord_sf(crs = 4326) +
+  theme_minimal()
+```
+
