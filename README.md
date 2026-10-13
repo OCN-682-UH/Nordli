@@ -22,6 +22,11 @@ This will be where I submit my weekly assignments for the class _Data Science Fu
   * [HW HTML](https://01a10ae4-2ee7-39e7-3ded-688e0e0d4a06.share.connect.posit.cloud)
   * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/8ea4911c617e0e5d35186fe4047f0bfea5e5eb1a/Week_06/Scripts)
   * [Outputs](https://github.com/OCN-682-UH/Nordli/tree/8ea4911c617e0e5d35186fe4047f0bfea5e5eb1a/Week_06/Outputs)
+* **Week_07**: Maps
+  * [HW HTML](https://01a136fd-a85b-d34c-6a25-9d96d34283c5.share.connect.posit.cloud)
+  * [Data](https://github.com/OCN-682-UH/Nordli/tree/7d819b54ce6661bd0ca2fb8d90492c7328a2cf2a/Week_07/Data)
+  * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/7d819b54ce6661bd0ca2fb8d90492c7328a2cf2a/Week_07/Scripts)
+  * [Outputs](https://github.com/OCN-682-UH/Nordli/tree/7d819b54ce6661bd0ca2fb8d90492c7328a2cf2a/Week_07/Outputs) 
 
 ## About Me
 
