@@ -1,0 +1,123 @@
+---
+title: "Week 7 - Homework Maps"
+author: "Linnea Nordli"
+format: 
+  html:
+    code-fold: false # code shown
+    mainfont: "Times new roman" # main body text
+    fontsize: 12pt # main font size
+    fontcolor: black # main font color
+    toc: true
+    toc-depth: 2
+    toc-location: right
+    toc-title: "Table of Contents"
+editor: visual
+warning: false
+theme: lumen
+---
+# Create a map using Quarto with the TidyTuesday dataset: **Cats on the Move!**
+
+## Preparing the Data for Mapping
+
+### Load Libraries
+```{r}
+library(tidyverse)
+library(tidytuesdayR)
+library(here)
+library(sf)
+library(maptiles)
+library(tidyterra)
+library(terra)
+library(ggspatial)
+library(PNWColors)
+```
+
+### Import Data: Cats in the UK
+```{r}
+cats_uk <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2023/2023-01-31/cats_uk.csv")
+cats_uk_reference <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2023/2023-01-31/cats_uk_reference.csv")
+```
+
+### Join Datasets: to add age column from reference csv 
+```{r}
+cats_joined <- cats_uk |>
+  left_join(cats_uk_reference |> select(tag_id, age_years),
+            by = "tag_id") # both csv files have tag_id column
+```
+
+## Generate Bounding Box: what area to download, directly from Cat dataset.
+
+### Step 1: convert data frame to an sf object
+```{r}
+cats_sf <- st_as_sf(cats_joined,
+                    coords = c("location_long", "location_lat"),
+                    crs = 4326) 
+```
+
+### Step: 2: get the bounding box and add a small buffer
+```{r}
+bbox_cat <- st_bbox(cats_sf) + c(-0.004, -0.004, 0.004, 0.004) # pads all four sides by ~0.4 km
+```
+
+### Step 3: Download tiles for cat dataframe
+```{r}
+#| output: false # created weird progress bar in published document? please help
+cat_satellite <- get_tiles(
+  st_as_sfc(bbox_cat), # which area to download
+  provider = "Esri.WorldImagery", # tile source
+  zoom = 11, # level of detail
+  crop = TRUE, # clip to exact bounding box 
+  cachedir = here("Week_07", "Data", "tiles_cache")
+)
+```
+
+#### Download the tiles locally
+Upon trying to publish my file, I received errors to access ESRI. Ran this in my console to download tiles locally. 
+```{r}
+#| eval: false 
+terra::writeRaster(cat_satellite, "Week_07/Data/cat_tiles.tif", overwrite = TRUE)
+```
+Then, reassigned the cat_satellite to the downloaded tif so when publishing it is accessing the files locally. Please let me know if there is an easier way to do this. It also created this weird looking table/dash situation above the download tiles heading.
+```{r}
+cat_satellite <- terra::rast("cat_tiles.tif")
+```
+
+## Map cat tile basemap with layers using ggplot
+```{r}
+#| label: fig-cat-age
+#| fig-cap: "A map of the United Kingdom showing pet cats with GPS sensors and their age range."
+#| fig-align: "center"
+#| fig-height: 6
+#| fig-width: 10
+ggplot() +
+  geom_spatraster_rgb(data = cat_satellite) + # reads 3 rgb layers and renders as photo
+  geom_point(data = cats_joined, # overlay age data points
+             aes(x = location_long, y = location_lat,
+                 color = age_years),
+             size = 2.5) +
+  annotation_scale(           # add scale bar
+    location = "tl",          # tl = top-left
+    bar_cols = c("lightblue", "white")) +
+  annotation_north_arrow(     # add north arrow
+    location = "tr") +        # tr = top-right
+  coord_sf(crs = 4326) +
+  theme_minimal()+
+  labs(color = "Age", 
+       title = "Pet Cats in the UK",
+       caption = "Basemap: ESRI World Imagery",
+       x= "Longitude", y="Latitude")+
+  scale_color_gradientn(colors = pnw_palette("Sailboat")) # add PNW palette to see points easier
+```
+
+### Save map
+```{r}
+ggsave(here("Week_07", "Outputs", "HW_cats_age_uk_map.pdf"), width = 10, height = 6, create.dir = TRUE)
+```
+
+## Dataset Information
+The dataset used to create @fig-cat-age was part of #TidyTuesday. Between 2013 and 2017, Kays et al. convinced hundreds of volunteers in the U.K. to strap GPS sensors on their pet cats. The datasets include each cat's characteristics (such as age, sex, neuter status, hunting habits) and time-stamped GPS pings.
+
+### References
+Kays R, Dunn RR, Parsons AW, Mcdonald B, Perkins T, Powers S, Shell L, McDonald JL, Cole H, Kikillus H, Woods L, Tindle H, Roetman P (2020) The small home ranges and large local ecological impacts of pet cats. Animal Conservation. [DOI](https://doi.org/10.1111/acv.12563)
+
+McDonald JL, Cole H (2020) Data from: The small home ranges and large local ecological impacts of pet cats [United Kingdom]. Movebank Data Repository. [DOI](https://doi.org/10.5441/001/1.pf315732)

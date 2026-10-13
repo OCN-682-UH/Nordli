@@ -153,4 +153,27 @@ ggplot() +
   coord_sf(crs = 4326) +
   theme_minimal()
 ```
+### Polish and Save 
+```{r}
+ggplot() +
+  geom_spatraster_rgb(data = Map_satellite) +
+  geom_point(data = ChemData,
+             aes(x = Long, y = Lat, color = Salinity),
+             size = 4) +
+  scale_color_viridis_c(name = "Salinity (ppt)") +
+  annotation_scale(location = "bl",
+                   bar_cols = c("yellow", "white")) +
+  annotation_north_arrow(location = "tl") +
+  coord_sf(crs = 4326) +
+  labs(title = "Maunalua Bay — Water Chemistry", # add labels and source
+       caption = "Basemap: ESRI World Imagery") +
+  theme_minimal()
+
+ggsave(here("Week_07", "Outputs", "maunalua_map.pdf"), width = 8, height = 6)
+```
+## Interactive Maps with {leaflet}
+Static maps are great for publications. Interactive maps let you zoom, pan, and click on your data — and embed directly in HTML documents. {leaflet} builds maps by piping layers together with |> — similar in concept to ggplot’s +, but using pipes instead.
+
+
+
 
