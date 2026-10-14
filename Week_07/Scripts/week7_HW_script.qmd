@@ -61,25 +61,14 @@ bbox_cat <- st_bbox(cats_sf) + c(-0.004, -0.004, 0.004, 0.004) # pads all four s
 
 ### Step 3: Download tiles for cat dataframe
 ```{r}
-#| output: false # created weird progress bar in published document? please help
+#| output: false
+#| message: false
 cat_satellite <- get_tiles(
   st_as_sfc(bbox_cat), # which area to download
   provider = "Esri.WorldImagery", # tile source
   zoom = 11, # level of detail
   crop = TRUE, # clip to exact bounding box 
-  cachedir = here("Week_07", "Data", "tiles_cache")
 )
-```
-
-#### Download the tiles locally
-Upon trying to publish my file, I received errors to access ESRI. Ran this in my console to download tiles locally. 
-```{r}
-#| eval: false 
-terra::writeRaster(cat_satellite, "Week_07/Data/cat_tiles.tif", overwrite = TRUE)
-```
-Then, reassigned the cat_satellite to the downloaded tif so when publishing it is accessing the files locally. Please let me know if there is an easier way to do this. It also created this weird looking table/dash situation above the download tiles heading.
-```{r}
-cat_satellite <- terra::rast("cat_tiles.tif")
 ```
 
 ## Map cat tile basemap with layers using ggplot
