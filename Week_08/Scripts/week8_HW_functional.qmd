@@ -1,0 +1,106 @@
+---
+title: "Week 8 - Homework"
+author: "Linnea Nordli"
+format: 
+  html:
+    code-fold: false # code shown
+    mainfont: "Times new roman" # main body text
+    fontsize: 12pt # main font size
+    fontcolor: black # main font color
+    embed-resources: true # avoids the extra folders by placing outputs into the HTML itself 
+    toc: true
+    toc-depth: 2
+    toc-location: right
+    toc-title: "Table of Contents"
+editor: visual
+warning: false
+theme: lumen
+knitr:
+  opts_chunk:
+    fig.path: "Outputs/"
+---
+
+# Functional Programming
+
+## Homework Instructions
+
+- Create any dataset you’d like
+- Write *two* useful functions:
+    - One that creates a plot
+    - One that does something else
+- Create a Quarto document showing:
+    - At least 2 examples per function
+    - Evidence of the function’s flexibility
+    
+## Load libraries
+```{r}
+library(tidyverse)
+library(PNWColors)
+library(sf)
+library(maptiles)
+library(palmerpenguins)
+```
+ 
+## Import data
+```{r}
+tortoise <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2026/2026-03-03/tortoise_body_condition_cleaned.csv')
+```
+
+    
+## Conversion Function: Convert fluid ounces to milliliters. 
+If we collect a water sample but record it in fluid ounces (Imperial), we would want to easily convert to milliliters (Metric) I've created a function to convert this. 
+```{r}
+fl_oz_to_ml <- function(fl_oz){
+  ml <- (30/1)*(fl_oz)
+  return(ml)
+}
+```
+### Example 1 
+Confirming that the function works, with the base conversion 1 oz = 30 ml (approximately)
+```{r}
+fl_oz_to_ml(1)
+```
+### Example 2
+If we input 20 oz into the function, the output is 600ml. 
+```{r}
+fl_oz_to_ml(20)
+```
+
+## Plot Function: Boxplot
+Creating the plot function to create boxplots. Add color palette from PNW Colors, remove outliers, and add theme.
+```{r}
+boxplot <- function(data, x, y, fill, group) {
+  pal <- pnw_palette("Sailboat", 3, type = "discrete")
+  
+  ggplot(data, aes(x = {{x}}, y = {{y}}, fill = {{fill}}, group = {{group}}))+
+    geom_boxplot(outlier.shape = NA)+
+    scale_fill_manual(values = pal)+
+    theme_bw()
+}
+```
+### Example 1
+Use *palmerpenguins* dataset to plot penguin species and body mass. 
+```{r}
+#| label: fig-penguin-species-mass
+#| fig-cap: "A boxplot showing penguin body mass (g) by penguin species (Adelie, Chinstrap, Gentoo) using palmerpenguins R package."
+#| fig-align: "center"
+#| fig-height: 6
+#| fig-width: 10
+boxplot(penguins, x = species, y = body_mass_g, fill = species, group = species)+
+  labs(x="Species", y="Body Mass (g)", fill = "Species") # add labels
+```
+### Example 2
+Use TidyTuesday dataset *Golem Grad Tortoise Data* to plot tortoise mass and carapace length grouped by locality.
+```{r}
+#| label: fig-tortoise-flipper-mass
+#| fig-cap: "A boxplot showing Hermann's tortoises' straight carapace length (mm) and body mass (g). Colors indicate location (Beach, Konjsko, Plateau) of tortoises recorded in Lake Prespa in North Macedonia."
+#| fig-align: "center"
+#| fig-height: 6
+#| fig-width: 10
+boxplot(tortoise, x = body_mass_grams, y = straight_carapace_length_mm, fill = locality, group = locality)+
+  labs(x="Body Mass (g)", y="Straight Carapace Length (mm)", fill = "Locality") # add labels
+```
+## References
+**@fig-penguin-species-mass**. Horst AM, Hill AP, Gorman KB (2020). palmerpenguins: Palmer Archipelago (Antarctica) penguin data. R package version 0.1.0. [GitHub Repository](https://allisonhorst.github.io/palmerpenguins/) . [DOI](https://doi.org/10.5281/zenodo.3960218)
+
+**@fig-tortoise-flipper-mass**. Arsovski, D., X. Bonnet, A. Golubović, and L. Tomović. 2026. “Sex Ratio Bias Triggers Demographic Suicide in a Dense Tortoise Population.” Ecology Letters 29, no. 1: e70296. [DOI](https://doi.org/10.1111/ele.70296).
