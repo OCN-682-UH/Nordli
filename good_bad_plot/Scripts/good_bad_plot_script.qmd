@@ -1,0 +1,147 @@
+---
+title: "Good Plot vs. Bad Plot"
+author: "Linnea Nordli"
+date: today
+format: 
+  html:
+    code-fold: true # code hidden with toggle button
+    code-summary: "Show code"
+    mainfont: "Times new roman" # main body text
+    fontsize: 12pt # main font size
+    fontcolor: black # main font color
+    embed-resources: true # avoids the extra folders by placing outputs into the HTML itself 
+    toc: true
+    toc-depth: 3
+    toc-location: right
+    toc-title: "Table of Contents"
+    fig-align: center
+editor: visual
+warning: false
+theme: lumen
+knitr:
+  opts_chunk:
+    fig.path: "../Outputs/"
+---
+## Information about the dataset used 
+I am exploring the average share of green areas in cities and urban areas around the world. The green areas are extracted using satellite imagery analysis for five time periods 1990, 2000, 2010, 2020, and 2025 based on the Normalized Difference Vegetation Index (NDVI), which assesses the level of greenness from satellite imagery. Green areas are defined as parts of the city that are green for most parts of the year, and include individual trees, forests or forested areas, shrubs, perennial grasses and such other types of long-term vegetation.
+
+## Prepare script and data
+
+### Load libraries
+```{r}
+library(tidyverse)
+library(dplyr)
+library(stringr)
+library(here)
+library(calecopal)
+library(ggplot2)
+```
+### Import data
+```{r}
+urban <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2026/2026-09-22/urban.csv')
+```
+## BAD PLOT
+Plot average share of green area in each subregion in percentage over year.
+```{r}
+#| label: fig-bad-plot
+#| fig-cap: "A BAD figure showing average share (%) of green areas in cities and urban areas by 21 subregions for five time periods 1990, 2000, 2010, 2020, and 2025."
+urban |> 
+  ggplot(aes(x = year, y = averageShareOfGreenAreaInCityUrbanAreaPct, color = sdgSubRegion))+
+  geom_line()+
+  geom_point(size = 2)+
+  theme_minimal(base_family = "Zapfino")+
+  labs(x = "Year", y = "Average Green Area in Urban Areas (%)", color = "Subregions")+
+  theme(panel.background = element_rect(fill = "yellow"), # ugly backdrop
+    plot.background = element_rect(fill = "green"))+ # more ugly color
+  scale_color_manual(values = cal_palette("desert", n = 21, type = "continuous"))
+
+ggsave(here("good_bad_plot", "Outputs", "HW_bad_plot.png"), width = 10, height = 6., create.dir = TRUE)
+```
+### Why is this bad?
+
+- **The data isn’t summarized.** The plot uses all 5,600 rows, probably one per city per year. Each year then has hundreds of points stacked on top of each other, which looks like vertical bars instead of a trend.
+- **Lines going all over.** The lines don’t mean anything. geom_line() connects every row within a color group, so each subregion zigzags up and down through all of its cities at every year instead of drawing one trend.
+- **The legend and layout are poor.** The legend is long and wide, includes NA, and squeezes the plot into a narrow area.
+- **Overlapping points** because so many, also color gradient for points and lines are too close to each other to distinguish between them 
+- **Distracting style.** The yellow and green backgrounds and the script font make the axis labels and legend hard to read and pull attention away from the data.
+- **Ugly colors.** The colors can’t be told apart. With 21 subregions (plus an NA group), the brown gradient has colors too close together to match a line to its legend entry. Overlapping points make it worse.
+
+## GOOD PLOT
+### Data wrangling
+Remove NAs
+```{r}
+clean_urban <- drop_na(urban)
+```
+Check how many unique entries in the subregion column
+```{r}
+unique(clean_urban$sdgSubRegion)
+```
+Create continent table to group subregions by continent
+```{r}
+cont_table <- tribble(
+  ~sdgSubRegion,             ~Continent,
+  "Northern America",            "Americas",
+  "South America",               "Americas",
+  "Central America",             "Americas",
+  "Northern Africa",             "Africa",
+  "Southern Africa",             "Africa",
+  "Western Europe",              "Europe",
+  "Australia and New Zealand",   "Oceania",
+  "Caribbean",                   "Americas",
+  "Central Asia",                "Asia",
+  "Eastern Africa",              "Africa",
+  "Eastern Asia",                "Asia",
+  "Eastern Europe",              "Europe",
+  "Melanesia",                   "Oceania",
+  "Middle Africa",               "Africa",
+  "Northern Europe",             "Europe",
+  "South-eastern Asia",          "Asia",
+  "Southern Asia",               "Asia",
+  "Southern Europe",             "Europe",
+  "Western Africa",              "Africa",
+  "Western Asia",                "Asia",
+)
+```
+Join new continent tibble with clean_urban dataframe by subregion
+```{r}
+cont_urban <- clean_urban |> 
+  left_join(cont_table, by = "sdgSubRegion")
+```
+Summarize medians to one value per continent and year before plotting, because lots of values within each continent.
+```{r}
+cont_summary <- cont_urban |>
+  group_by(Continent, year) |>
+  summarise(
+    median_green_area = median(averageShareOfGreenAreaInCityUrbanAreaPct, na.rm = TRUE))
+```
+### Plot
+```{r}
+#| label: fig-good-plot
+#| fig-cap: "Median share (%) of green areas in cities and urban areas grouped by continents (colored lines). The green areas are extracted using satellite imagery analysis for five time periods 1990, 2000, 2010, 2020, and 2025 based on the Normalized Difference Vegetation Index (NDVI), which assesses the level of greenness from satellite imagery."
+#| fig-height: 6
+#| fig-width: 10
+cont_summary |> 
+  ggplot(aes(x = year, y = median_green_area, color = Continent)) +
+  geom_line(linewidth = 1) +
+  scale_x_continuous(breaks = unique(cont_summary$year)) + # axis ticks exactly on measurement years 
+  labs(title = "Global shares of green areas in urban areas",
+       caption = "UN Habitat Urban Indicators Dataset (TidyTuesdayR), 1990-2025",
+       x = "Year", y = "Median Green Area (%)", color = "Continents") +
+  theme_bw()+
+  theme(plot.title = element_text(size = 15, face = "bold"),
+        panel.grid.minor = element_blank())+ # minimal grid lines 
+  scale_color_manual(values = cal_palette("superbloom1"))
+
+ggsave(here("good_bad_plot", "Outputs", "HW_good_plot.png"), width = 10, height = 6., create.dir = TRUE)
+
+```
+
+### Why is this better?
+
+- **Same dataset, but organized better.** Nothing was removed. The data was restructured so the pattern is visible.
+- **Summarizes first.** The data is grouped by continent and year, with median() reducing each combination to one value. That leaves 5 lines with one point per year, so each line shows a single clear trend. 
+  - **Continents vs. subregions:** the bad plot uses 21 subregions and the good one uses 5 continents.
+- **Uses the median.** An average hides how much cities vary within a continent. City percentages are often skewed, so a few very green or very sparse cities can pull the mean far from a typical city. The median is more representative of the typical city.
+- **Has clear colors.** Five continents get five distinct colors, so each line is easy to follow and match to the legend.
+- **Has a short legend.** It has 5 entries, no NA, and sits beside a wide plot area.
+- **Has clean labels and design.** The title is descriptive, the font is readable, and the white background with light gridlines keeps the focus on the lines.
