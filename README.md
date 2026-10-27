@@ -34,6 +34,11 @@ This will be where I submit my weekly assignments for the class _Data Science Fu
 * **Good Plot vs. Bad Plot**: [Link](https://01a155f8-01fc-8e05-f0b0-80bfdd6f97a0.share.connect.posit.cloud)
   * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/main/good_bad_plot/Scripts)
   * [Outputs](https://github.com/OCN-682-UH/Nordli/tree/main/good_bad_plot/Outputs)
+* **Week_09**: Factors
+  * [HW HTML](http://localhost:4988)
+  * [Data](https://github.com/OCN-682-UH/Nordli/tree/main/Week_09/Data)
+  * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/main/Week_09/Scripts)
+  * [Outputs](https://github.com/OCN-682-UH/Nordli/tree/main/Week_09/Outputs)
 
 ## About Me
 
