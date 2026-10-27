@@ -14,15 +14,21 @@ format:
     toc-location: right
     toc-title: "Table of Contents"
     fig-align: center
+    theme: lumen
 editor: visual
-warning: false
-theme: lumen
-knitr:
-  opts_chunk:
-    fig.path: "../Outputs/"
+execute:
+  warning: false
 ---
 
 # Intertidal Data
+
+## Homework
+Working with intertidal data. Your goal is to make a plot where at least one axis is a factor in a meaningful order.
+
+- Data files in the data/folder: intertidal.csv and intertidal_latitude.csv (plus a data dictionary)
+- You may need to use string-cleaning skills (check out the **{janitor}** package) to tidy column names
+- If you visualize by tide height, it must go Low → Mid → High on the plot
+- If you visualize by site, it must go in order of latitude (N→S or S→N)
 
 ## Load Libraries
 ```{r}
