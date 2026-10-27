@@ -1,0 +1,114 @@
+---
+title: "Week 9 - Factors Homework"
+author: "Linnea Nordli"
+format: 
+  html:
+    code-fold: true # code hidden
+    code-summary: "Show Code"
+    mainfont: "Times new roman" # main body text
+    fontsize: 12pt # main font size
+    fontcolor: black # main font color
+    embed-resources: true # avoids the extra folders by placing outputs into the HTML itself 
+    toc: true
+    toc-depth: 2
+    toc-location: right
+    toc-title: "Table of Contents"
+    fig-align: center
+editor: visual
+warning: false
+theme: lumen
+knitr:
+  opts_chunk:
+    fig.path: "../Outputs/"
+---
+
+# Intertidal Data
+
+## Load Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(stringr)
+```
+
+## Import Data
+```{r}
+ITdata <- read_csv(here("Week_09", "Data", "intertidaldata.csv"))
+
+ITdata <- ITdata |> 
+  janitor::clean_names() # clean up column names to replaces spaces with underscore
+
+ITdic <- read_csv(here("Week_09", "Data", "intertidal_data_dictionary.csv"))
+
+ITlat <- read_csv(here("Week_09", "Data", "intertidaldata_latitude.csv"))
+
+```
+
+## Data wrangling
+#### Group the three different barnacle columns into new total barnacle column
+```{r}
+barnacle_IT <- ITdata |>
+  mutate(barnacles_total = small_barnacles + large_barnacles + gooseneck_barnacles)
+```
+
+#### Pivot to long dataset and factor tidal height
+```{r}
+IT_long <- barnacle_IT |>
+  pivot_longer(
+    cols = c(bare_rock, algae, mussels, anemone, barnacles_total),  # select 5 columns with % values
+    names_to = "cover_type", # rename new column with the five
+    values_to = "percent_cover") |> # rename values column
+  mutate(tidal_height = str_extract(quadrat,regex("Low|Mid|High")), # some quadrat values had "." and "1" after so they turned NA when factoring, extract only the words
+           tidal_height = factor(tidal_height, levels = c("Low", "Mid", "High"))) # order tidal heights from low to high
+```
+
+## Start Plotting
+#### Create manual color palette to match colors to cover type (e.g green is algae)
+```{r}
+# create manual color palette to match colors to cover type (e.g green is algae)
+cover_colors <- c(algae = "#4C9A5B",
+                  bare_rock = "#A8A29A",
+                  barnacles_total = "#5B8DB8",
+                  mussels = "#2F3E5C",
+                  anemone = "#E07A5F")
+```
+
+#### Create a bar chart of mean percent cover across tidal height, colored by cover type
+```{r}
+#| label: fig-cover-tide
+#| fig-cap: "Mean percent cover of five cover types (algae, anemone, bare rock, barnacles, and mussels) across low, mid, and high tide, pooled across 15 intertidal sites along the US Pacific coast (32.9 to 47.7°N). Colored bars show the mean cover of each type at each tidal height, averaged across quadrats (n = 150 per tidal height) and error bars show ±1 standard error. Barnacles combine small, large, and gooseneck barnacles. Cover types can sum to more than 100% within a tidal height because organisms can grow in layers (e.g., algae over barnacles)., so each cover type was scored independently."
+#| fig-height: 6
+#| fig-width: 10
+IT_long |>
+  group_by(tidal_height, cover_type) |>
+  summarise(mean_abundance = mean(percent_cover, na.rm = TRUE), # summarize mean percent_cover
+            se = sd(percent_cover, na.rm = TRUE) / sqrt(n())) |> # calculate standard error of means
+  ggplot(aes(x = tidal_height, y = mean_abundance, 
+             fill = fct_reorder2(cover_type, tidal_height, mean_abundance))) + #reorders fill by the values of y at the largest values of x
+  geom_col(position = "dodge") + # splits up the bar chart into a bar per cover type instead of stacking them on top of each other
+  geom_errorbar(aes(ymin = mean_abundance - se, ymax = mean_abundance + se), # add error bars on bars
+                position = position_dodge(width = 0.9), # place error bars directly on each bar instead of all over randomly
+                width = 0.2) + # make the bars smaller
+  scale_fill_manual(values = cover_colors, # add manual color palette
+                    labels = c(algae = "Algae", # capitalize legend entries, is there an easier way than spelling them all out?
+                               anemone = "Anemone",
+                               bare_rock = "Bare rock",
+                               barnacles_total = "Barnacles",
+                               mussels = "Mussels")) +
+  labs(x = "Tidal height", y = "Mean cover (%)", fill = "Cover type",
+       title = "Distribution of Cover Types in the Intertidal",
+       subtitle = "Mean percent cover of five cover types along the U.S. West Coast at three tidal heights") + 
+  theme_bw()+
+  theme(plot.title = element_text(size=17, face="bold")) # bold plot title
+```
+## Conclusion
+@fig-cover-tide shows that algae dominated the low tide, barnacles and mussels peaked at mid-tide, and bare rock and barnacles had the highest cover at the high tide. 
+
+### Questions for TA/Instructor
+I feel like this took a lot of steps to create, did I do a lot of unnecessary work? 
+
+- Especially with the SE bars, is there an easier way to add them?
+- Also, with cleaning up the Quadrat column I was looking at the **stringr** package, but there are so many options (pros and cons with that) so I was struggling to decide which one was the simplest way to remove the "." and "1" in a few Quadrat tide entries. 
+- Could you mutate to create the total barnacle column in the same code chunk as pivoting to long format or does it have to be beforehand? I tried, but it just added a weird column that didn't make much sense.
+
