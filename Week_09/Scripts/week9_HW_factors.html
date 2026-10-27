@@ -2207,15 +2207,26 @@ vertical-align: -.125em;
   <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of Contents</h2>
    
-  <ul class="collapse">
+  <ul>
   <li><a href="#intertidal-data" id="toc-intertidal-data" class="nav-link active" data-scroll-target="#intertidal-data">Intertidal Data</a>
-  <ul class="collapse">
+  <ul>
   <li><a href="#homework" id="toc-homework" class="nav-link" data-scroll-target="#homework">Homework</a></li>
   <li><a href="#load-libraries" id="toc-load-libraries" class="nav-link" data-scroll-target="#load-libraries">Load Libraries</a></li>
   <li><a href="#import-data" id="toc-import-data" class="nav-link" data-scroll-target="#import-data">Import Data</a></li>
-  <li><a href="#data-wrangling" id="toc-data-wrangling" class="nav-link" data-scroll-target="#data-wrangling">Data wrangling</a></li>
-  <li><a href="#start-plotting" id="toc-start-plotting" class="nav-link" data-scroll-target="#start-plotting">Start Plotting</a></li>
-  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#data-wrangling" id="toc-data-wrangling" class="nav-link" data-scroll-target="#data-wrangling">Data wrangling</a>
+  <ul class="collapse">
+  <li><a href="#group-the-three-different-barnacle-columns-into-new-total-barnacle-column" id="toc-group-the-three-different-barnacle-columns-into-new-total-barnacle-column" class="nav-link" data-scroll-target="#group-the-three-different-barnacle-columns-into-new-total-barnacle-column">Group the three different barnacle columns into new total barnacle column</a></li>
+  <li><a href="#pivot-to-long-dataset-and-factor-tidal-height" id="toc-pivot-to-long-dataset-and-factor-tidal-height" class="nav-link" data-scroll-target="#pivot-to-long-dataset-and-factor-tidal-height">Pivot to long dataset and <strong>factor</strong> tidal height</a></li>
+  </ul></li>
+  <li><a href="#start-plotting" id="toc-start-plotting" class="nav-link" data-scroll-target="#start-plotting">Start Plotting</a>
+  <ul class="collapse">
+  <li><a href="#create-manual-color-palette-to-match-colors-to-cover-type-e.g-green-is-algae" id="toc-create-manual-color-palette-to-match-colors-to-cover-type-e.g-green-is-algae" class="nav-link" data-scroll-target="#create-manual-color-palette-to-match-colors-to-cover-type-e.g-green-is-algae">Create manual color palette to match colors to cover type (e.g green is algae)</a></li>
+  <li><a href="#create-a-bar-chart-of-mean-percent-cover-across-tidal-height-colored-by-cover-type" id="toc-create-a-bar-chart-of-mean-percent-cover-across-tidal-height-colored-by-cover-type" class="nav-link" data-scroll-target="#create-a-bar-chart-of-mean-percent-cover-across-tidal-height-colored-by-cover-type">Create a bar chart of mean percent cover across tidal height, colored by cover type</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a>
+  <ul class="collapse">
+  <li><a href="#questions-for-tainstructor" id="toc-questions-for-tainstructor" class="nav-link" data-scroll-target="#questions-for-tainstructor">Questions for TA/Instructor</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -2300,7 +2311,7 @@ vertical-align: -.125em;
 </div>
 </section>
 <section id="pivot-to-long-dataset-and-factor-tidal-height" class="level4">
-<h4 class="anchored" data-anchor-id="pivot-to-long-dataset-and-factor-tidal-height">Pivot to long dataset and factor tidal height</h4>
+<h4 class="anchored" data-anchor-id="pivot-to-long-dataset-and-factor-tidal-height">Pivot to long dataset and <strong>factor</strong> tidal height</h4>
 <div class="cell">
 <details class="code-fold">
 <summary>Show Code</summary>
@@ -2333,6 +2344,7 @@ vertical-align: -.125em;
 </section>
 <section id="create-a-bar-chart-of-mean-percent-cover-across-tidal-height-colored-by-cover-type" class="level4">
 <h4 class="anchored" data-anchor-id="create-a-bar-chart-of-mean-percent-cover-across-tidal-height-colored-by-cover-type">Create a bar chart of mean percent cover across tidal height, colored by cover type</h4>
+<p>I used <strong>factor</strong> to reorders fill by the values of y at the largest values of x (cover type in the legend, and also order of bars)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show Code</summary>
@@ -2378,7 +2390,8 @@ Figure 1: Mean percent cover of five cover types (algae, anemone, bare rock, ba
 <p><a href="#fig-cover-tide" class="quarto-xref">Figure 1</a> shows that algae dominated the low tide, barnacles and mussels peaked at mid-tide, and bare rock and barnacles had the highest cover at the high tide.</p>
 <section id="questions-for-tainstructor" class="level3">
 <h3 class="anchored" data-anchor-id="questions-for-tainstructor">Questions for TA/Instructor</h3>
-<p>I feel like this took a lot of steps to create, did I do a lot of unnecessary work?</p>
+<p>It wouldn’t let me publish my file because the csv files were on my local drive, how do you work around this?</p>
+<p>Also, I feel like this plot took a lot of steps to create, did I do a lot of unnecessary work?</p>
 <ul>
 <li>Especially with the SE bars, is there an easier way to add them?</li>
 <li>Also, with cleaning up the Quadrat column I was looking at the <strong>stringr</strong> package, but there are so many options (pros and cons with that) so I was struggling to decide which one was the simplest way to remove the “.” and “1” in a few Quadrat tide entries.</li>
