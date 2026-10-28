@@ -39,6 +39,9 @@ This will be where I submit my weekly assignments for the class _Data Science Fu
   * [Data](https://github.com/OCN-682-UH/Nordli/tree/main/Week_09/Data)
   * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/main/Week_09/Scripts)
   * [Outputs](https://github.com/OCN-682-UH/Nordli/tree/main/Week_09/Outputs)
+* **Week_10**: Strings
+  * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/main/Week_10/Scripts)
+  * [Outputs](https://github.com/OCN-682-UH/Nordli/tree/main/Week_10/Outputs)
 
 ## About Me
 
