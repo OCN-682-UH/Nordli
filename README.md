@@ -42,6 +42,10 @@ This will be where I submit my weekly assignments for the class _Data Science Fu
 * **Week_10**: Strings
   * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/main/Week_10/Scripts)
   * [Outputs](https://github.com/OCN-682-UH/Nordli/tree/main/Week_10/Outputs)
+* **Week_12**: [My Shiny App](https://01a1dd32-421d-8e8d-8f98-8d916d9f93a6.share.connect.posit.cloud)
+  * [NordliApp](https://github.com/OCN-682-UH/Nordli/tree/main/Week_12/NordliApp)
+  * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/main/Week_12/Scripts)
+  * [Data](https://github.com/OCN-682-UH/Nordli/tree/main/Week_12/Data)
 
 ## About Me
 
