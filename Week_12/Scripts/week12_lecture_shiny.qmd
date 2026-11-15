@@ -1,0 +1,244 @@
+---
+title: "Week 12 - Lecture Notes"
+format: 
+  html:
+     code-fold: true # code shown
+    code-summary: "Show Code"
+    mainfont: "Times new roman" # main body text
+    fontsize: 12pt # main font size
+    fontcolor: black # main font color
+    embed-resources: true # avoids the extra folders by placing outputs into the HTML itself 
+    toc: true
+    toc-depth: 4
+    toc-location: right
+    toc-title: "Table of Contents"
+    fig-align: center
+editor: visual
+warning: false
+theme: lumen
+knitr:
+  opts_chunk:
+    fig.path: "../Outputs/"
+---
+    
+# Intro to Shiny Apps
+
+## What is Shiny?
+- Link regular website and Code
+
+### When is it useful
+When we want to make R code accessible outside of an R or RStudio environment. For example:
+- Teaching a package
+- Showing data visualizations to non-experts
+- Streamlining certain code-intensive things (like database queries or visualizing bulky simulation outputs)
+
+
+## App template
+- has to have it's own folder (inside week 12, future: own repo)
+- a regular R script HAS to be saved as "app.R" (name of app is name of FOLDER, not scripts)
+
+Needs 3 things (if started from nothing)
+- ui (useinterface) <- fluidPage()
+    - The ui (user interface) object dictates the appearance of the app. UI functions write HTML. For something to appear in your app, it needs to be in the UI.
+- server
+    -  The server() function contains rendering expressions that create the objects to display.
+- shinyAPP
+    - The server function and UI object are passed to the shinyApp() function to create a Shiny app object.
+
+### Add Elements to your App as Arguments to fluidPage()
+```{r}
+library(shiny)
+
+ui <- fluidPage('Hello World')
+
+server <- function(input, output){}
+
+shinyApp(ui = ui, server = server)
+```
+
+DON'T FORGET PARANTHESES CLOSED
+```{r}
+ui <- fluidPage(
+   # Inputs functions
+   # Outputs functions
+)
+```
+
+### Create an Input with a *Input Function
+There are many types of inputs and the syntax for all of them is typeInput. To make a slider we use sliderInput().
+
+These inputs make a bunch of HTML code behind the scene:
+```{r}
+sliderInput(inputId = "num", # ID name for the input (slider), connects input to output
+            label = "Choose a number", # Label above the input
+            value = 25, min = 1, max = 100 # values for the slider
+            )
+```
+
+## Outputs
+- after sliderInput need COMMA ",", then put plotOutput
+```{r}
+ui <- fluidPage(
+  sliderInput(inputId = "num", # ID name for the input
+              label = "Choose a number here", # Label for the input
+              value = 23, min = 1, max = 100 # values for the slider: start at 25 and range from 1-100
+  ),
+  plotOutput("hist") # creates space (visualized in the order you code in), so if this was before sliderInput it would go above
+)
+```
+
+## Server: 
+What is the server? Mostly, R code. This is where the vegan meat of your app is located. function of input and output
+### Use 3 Rules to Write the Server Function
+
+```{r}
+server <- function(input, output){
+
+}
+```
+#### Rule 1. Save Objects to Display to output$
+```{r}
+server <- function(input, output){
+  output$hist <- # code, after $ Has to be IDENTICAL to plotOutput("inside here")
+}
+```
+#### Rule 2. Build Objects to Display with render*({})
+```{r}
+server <- function(input, output){
+  output$hist <- renderPlot ({
+    #R code to make the hist output goes here
+  })
+}
+```
+Render a Plot: This will create a static plot first. Also we are using ggplot so add in the tidyverse:
+```{r}
+library(shiny)
+library(tidyverse)
+
+ui <- fluidPage(
+  sliderInput(inputId = "num", # ID name for the input
+            label = "Choose a number", # Label above the input
+            value = 25, min = 1, max = 100 # values for the slider
+            ),
+  plotOutput("hist") # creates space for a plot called hist
+)
+
+server <- function(input, output){
+
+   output$hist <- renderPlot({
+
+     # {} allows us to put all our R code in one nice chunk
+    data <- tibble(x = rnorm(100)) # 100 random normal points
+
+    ggplot(data, aes(x = x)) + # make a histogram
+      geom_histogram() # run these 3 lines in console to check if it makes a histogram first!
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+#### Rule 3. Access the input Values with input$
+We are going to replace 100 with input$num. Notice that num comes from what we put in our inputId. Exact same spelling.
+```{r}
+ui <- fluidPage(
+  sliderInput(inputId = "num", # ID name for the input
+            label = "Choose a number", # Label above the input
+            value = 25, min = 1, max = 100 # values for the slider
+            ),
+  plotOutput("hist") # creates space for a plot called hist
+)
+
+server <- function(input, output){
+
+   output$hist <- renderPlot({
+
+     # {} allows us to put all our R code in one nice chunk
+    data <- tibble(x = rnorm(input$num)) # number of points set by the slider  ## HERE
+
+    ggplot(data, aes(x = x)) + # make a histogram
+      geom_histogram()
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+##### Let’s Add Two Types of Inputs
+Let’s say we want to write an input where the user can create whatever title they want by typing it into a box. Let’s update our ui to have a textInput():
+
+```{r}
+ui <- fluidPage(
+  sliderInput(inputId = "num", # ID name for the input
+            label = "Choose a number", # Label above the input
+            value = 25, min = 1, max = 100 # values for the slider
+            ),
+  textInput(inputId = "title", # new Id is title
+          label = "Write a title",
+          value = "Histogram of Random Normal Values"), # starting title
+  plotOutput("hist") # creates space for a plot called hist
+)
+```
+
+
+
+```{r}
+ui <- fluidPage(
+  sliderInput(inputId = "num", # ID name for the input
+            label = "Choose a number", # Label above the input
+            value = 25, min = 1, max = 100 # values for the slider
+            ),
+  textInput(inputId = "title", # new Id is title
+          label = "Write a title",
+          value = "Histogram of Random Normal Values"), # starting title
+  plotOutput("hist"), # creates space for a plot called hist
+  verbatimTextOutput("stats") # create a space for stats
+)
+
+server <- function(input, output){
+
+   output$hist <- renderPlot({
+
+     # {} allows us to put all our R code in one nice chunk
+    data <- tibble(x = rnorm(input$num)) # number of points set by the slider
+
+    ggplot(data, aes(x = x)) + # make a histogram
+      geom_histogram() +
+      labs(title = input$title) # add a new title
+  })
+
+   output$stats <- renderPrint({
+     summary(rnorm(input$num)) # calculate summary stats based on the numbers
+   })
+}
+
+shinyApp(ui=ui, server = server)
+```
+
+## Cleaning the Code
+### reactive()
+creates an OBJECT 
+```{r}
+data <- reactive({rnorm(input$num)})
+```
+
+```{r}
+server <- function(input, output){
+
+   output$hist <- renderPlot({
+
+     # {} allows us to put all our R code in one nice chunk
+    data <- reactive({ # change this tibble to reactive object
+      tibble(x = rnorm(input$num)) # number of points set by the slider
+    })
+    ggplot(data(), aes(x = x)) + # make a histogram
+      geom_histogram() +
+      labs(title = input$title) # add a new title
+  })
+
+   output$stats <- renderPrint({
+     summary(data()) # calculate summary stats based on the numbers
+   })
+}
+
+shinyApp(ui=ui, server = server)
+```
+

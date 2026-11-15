@@ -23,6 +23,7 @@ execute:
 # Intertidal Data
 
 ## Homework
+
 Working with intertidal data. Your goal is to make a plot where at least one axis is a factor in a meaningful order.
 
 - Data files in the data/folder: intertidal.csv and intertidal_latitude.csv (plus a data dictionary)
@@ -31,6 +32,7 @@ Working with intertidal data. Your goal is to make a plot where at least one axi
 - If you visualize by site, it must go in order of latitude (N→S or S→N)
 
 ## Load Libraries
+
 ```{r}
 library(tidyverse)
 library(here)
@@ -39,6 +41,7 @@ library(stringr)
 ```
 
 ## Import Data
+
 ```{r}
 ITdata <- read_csv(here("Week_09", "Data", "intertidaldata.csv"))
 
@@ -52,13 +55,16 @@ ITlat <- read_csv(here("Week_09", "Data", "intertidaldata_latitude.csv"))
 ```
 
 ## Data wrangling
+
 #### Group the three different barnacle columns into new total barnacle column
+
 ```{r}
 barnacle_IT <- ITdata |>
   mutate(barnacles_total = small_barnacles + large_barnacles + gooseneck_barnacles)
 ```
 
 #### Pivot to long dataset and **factor** tidal height
+
 ```{r}
 IT_long <- barnacle_IT |>
   pivot_longer(
@@ -70,7 +76,9 @@ IT_long <- barnacle_IT |>
 ```
 
 ## Start Plotting
+
 #### Create manual color palette to match colors to cover type (e.g green is algae)
+
 ```{r}
 # create manual color palette to match colors to cover type (e.g green is algae)
 cover_colors <- c(algae = "#4C9A5B",
@@ -81,7 +89,9 @@ cover_colors <- c(algae = "#4C9A5B",
 ```
 
 #### Create a bar chart of mean percent cover across tidal height, colored by cover type
+
 I used **factor** to reorders fill by the values of y at the largest values of x (cover type in the legend, and also order of bars)
+
 ```{r}
 #| label: fig-cover-tide
 #| fig-cap: "Mean percent cover of five cover types (algae, anemone, bare rock, barnacles, and mussels) across low, mid, and high tide, pooled across 15 intertidal sites along the US Pacific coast (32.9 to 47.7°N). Colored bars show the mean cover of each type at each tidal height, averaged across quadrats (n = 150 per tidal height) and error bars show ±1 standard error. Barnacles combine small, large, and gooseneck barnacles. Cover types can sum to more than 100% within a tidal height because organisms can grow in layers (e.g., algae over barnacles)., so each cover type was scored independently."
@@ -109,16 +119,17 @@ IT_long |>
   theme_bw()+
   theme(plot.title = element_text(size=17, face="bold")) # bold plot title
 ```
+
 ## Conclusion
-@fig-cover-tide shows that algae dominated the low tide, barnacles and mussels peaked at mid-tide, and bare rock and barnacles had the highest cover at the high tide. 
+
+@fig-cover-tide shows that algae dominated the low tide, barnacles and mussels peaked at mid-tide, and bare rock and barnacles had the highest cover at the high tide.
 
 ### Questions for TA/Instructor
+
 It wouldn't let me publish my file because the csv files were on my local drive, how do you work around this?
 
-Also, I feel like this plot took a lot of steps to create, did I do a lot of unnecessary work? 
+Also, I feel like this plot took a lot of steps to create, did I do a lot of unnecessary work?
 
 - Especially with the SE bars, is there an easier way to add them?
-- Also, with cleaning up the Quadrat column I was looking at the **stringr** package, but there are so many options (pros and cons with that) so I was struggling to decide which one was the simplest way to remove the "." and "1" in a few Quadrat tide entries. 
+- Also, with cleaning up the Quadrat column I was looking at the **stringr** package, but there are so many options (pros and cons with that) so I was struggling to decide which one was the simplest way to remove the "." and "1" in a few Quadrat tide entries.
 - Could you mutate to create the total barnacle column in the same code chunk as pivoting to long format or does it have to be beforehand? I tried, but it just added a weird column that didn't make much sense.
-
-
