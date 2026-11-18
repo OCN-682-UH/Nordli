@@ -8,11 +8,12 @@
 library(shiny)
 library(tidyverse)
 library(palmerpenguins) # includes penguin data
+library(shinythemes) # shiny theme package
 
 ## Define UI ##
 ui <- fluidPage(
-  theme = bslib::bs_theme(bootswatch = "sandstone"), # add theme to app
-  titlePanel("Make a Plot using PalmerPenguin Data Package"), # add title to App page
+  theme = shinytheme("sandstone"), # add theme to app
+  titlePanel(tags$b("Make a Plot using PalmerPenguin Data Package")), # add bold (tags$b) title to App page
     sidebarLayout( # select variables to plot in a sidebar panel
       sidebarPanel( # select y-axis variable
         selectInput(inputId = "y", # this ID goes in output later
@@ -78,3 +79,5 @@ shinyApp(ui = ui, server = server)
 # Week 12 Lecture Slides from Dr. Nyssa Silbiger
 # Mastering Shiny Book
 # Intro to Shiny - GitHub Repository
+# Shiny Themes - GitHub Repository
+# Shiny HTML Tags Glossary - shiny.posit.co 

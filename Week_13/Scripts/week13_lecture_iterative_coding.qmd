@@ -1,0 +1,280 @@
+---
+title: "Week 13 - Lecture Notes"
+author: "Linnea Nordli"
+date: today
+format: 
+  html:
+    code-fold: true # code shown
+    code-summary: "Show Code"
+    mainfont: "Times new roman" # main body text
+    fontsize: 12pt # main font size
+    fontcolor: black # main font color
+    embed-resources: true # avoids the extra folders by placing outputs into the HTML itself 
+    toc: true
+    toc-depth: 4
+    toc-location: right
+    toc-title: "Table of Contents"
+    fig-align: center
+editor: visual
+warning: false
+theme: lumen
+knitr:
+  opts_chunk:
+    fig.path: "../Outputs/"
+---
+
+# Iterative Coding
+
+
+## Load libraries
+```{r}
+library(tidyverse)
+library(here)
+```
+
+## for loops
+```{r}
+for (index in sequence) {  # for is the function, i is the index (changes with each iteration)
+  command to repeat
+}
+```
+
+### simple example for loop
+```{r}
+print(paste("The year is", 2000))
+```
+#### Put it in a loop, create sequence (vector) "years"
+```{r}
+years <- c(2015:2021)
+
+for (i in years) {
+  print(paste("The year is", i))
+}
+```
+#### Create a dataframe - pre-allocate space to fill one row at a time. This is flexible, you never want to hard-code.
+```{r}
+year_data <- tibble(year = rep(NA, length(years)), #rep = repeats
+                    year_name = rep(NA, length(years)))
+
+year_data
+```
+
+#### Make it broader - use sequence along this particular df
+```{r}
+for (i in seq_along(years)) { # seq_along, move along the sequence 1-2-3-4 (if you have 0 in your data you'll get secret error)
+  year_data$year_name[i] <- paste("The year is", years[i])
+}
+
+year_data
+```
+
+#### Fill in the column too
+```{r}
+for (i in seq_along(years)) {
+  year_data$year_name[i] <- paste("The year is", years[i])
+  year_data$year[i] <- years[i]
+}
+
+year_data
+```
+
+### Use loops to read in multiple csv files
+```{r}
+testdata <- read_csv(here("Week_13", "Data", "cond_data", "011521_CT316_1pcal.csv"))
+
+glimpse(testdata)
+```
+### List files in a directory
+```{r}
+# Point to the folder on the computer
+CondPath <- here("Week_13", "Data", "cond_data")
+
+# List all files in that path matching a pattern (here, anything with .csv)
+# You can use regex to be more specific about filenames # can use any regex to only find files with certain words/letters/numbers
+files <- dir(path = CondPath, pattern = ".csv")
+
+files
+```
+
+### Pre-allocate space for the loop
+```{r}
+# One row for each file and 3 columns
+cond_data <- tibble(filename = rep(NA, length(files)),
+                    mean_temp = rep(NA, length(files)),
+                    mean_sal = rep(NA, length(files)))
+
+cond_data
+```
+
+### Write the basic code first
+```{r}
+# Test by reading in the first file (this is baseR)
+raw_data <- read_csv(paste0(CondPath, "/", files[1])) #paste 0 leaves NO space 
+head(raw_data)
+```
+```{r}
+mean_temp <- mean(raw_data$Temperature, na.rm = TRUE) #baseR
+mean_temp
+```
+
+### Turn it into a for loop
+```{r}
+for (i in seq_along(files)) { # loop over each file (1, 2, 3)
+
+
+}
+```
+
+```{r}
+for (i in seq_along(files)) {
+
+  raw_data <- read_csv(paste0(CondPath, "/", files[i]))
+  glimpse(raw_data) # glimpse in a for loop SLOWS down the loops, hashtag after checking
+
+}
+```
+
+```{r}
+for (i in seq_along(files)) {
+
+  raw_data <- read_csv(paste0(CondPath, "/", files[i]))
+
+  cond_data$filename[i] <- files[i] # add filenames for each row
+  cond_data$mean_temp[i] <- mean(raw_data$Temperature, na.rm = TRUE) # add means
+  cond_data$mean_sal[i] <- mean(raw_data$Salinity, na.rm = TRUE)
+
+}
+
+cond_data
+```
+
+## Purrr
+Now we will do the exact same thing, but with tidyverse style language. map() as in layer things on top of each other. 
+
+### map functions
+The pattern of looping over a vector, doing something to each element and saving the results is so common that purrr provides a family of functions to do it for you. There is one function for each type of output:
+
+
+Map some function onto each row in a dataframe. 
+
+### simple ex
+```{r}
+set.seed(3817) # makes the random numbers reproducible
+1:10 |> # the vector to iterate over, 10 sets of random numbers 
+  map(rnorm, n = 15) # 15 random numbers from a normal distribution, in a list
+```
+1. calc the mean of each list element
+```{r}
+set.seed(3817) # makes the random numbers reproducible
+1:10 |> # the vector to iterate over
+  map(rnorm, n = 15) |> 
+  map_dbl(mean) # result is now a vector of type "double"
+```
+2. same way, just make your own function
+```{r}
+set.seed(3817)
+1:10 |>
+  map(function(x) rnorm(15, x)) |> # make your own function
+  map_dbl(mean)
+```
+3. use a formula when you want to change the arg within the function
+```{r}
+set.seed(3817)
+1:10 |>
+  map(~ rnorm(15, .x)) |> # changes the arguments inside the function
+  map_dbl(mean)
+```
+
+### Bring in files using purrr instead of a for loop
+Find the files: Already have CondPath and filed in values from earlier code chunk.
+```{r}
+CondPath <- here("Week_13", "data", "cond_data")
+files <- dir(path = CondPath, pattern = ".csv")
+
+files
+```
+
+Or get the full file names in one less step (purrr wants full path:
+```{r}
+files <- dir(path = CondPath, pattern = ".csv", full.names = TRUE) # saves the entire path
+files
+```
+
+### Read in the files
+```{r}
+data <- files |>
+  set_names() |> # names each list element with its file name
+  map(read_csv) |> # a list of 3 dataframes
+  list_rbind(names_to = "filename") # stack them; list names go in a "filename" column - first column name 
+
+data
+```
+### Calc means
+```{r}
+data <- files |>
+  set_names() |>
+  map(read_csv) |>
+  list_rbind(names_to = "filename") |>
+  group_by(filename) |>
+  summarise(mean_temp = mean(Temperature, na.rm = TRUE),
+            mean_sal = mean(Salinity, na.rm = TRUE))
+
+data
+```
+
+### Shortcut: readr
+EVERY FILE HAS TO HAVE THE EXACT SAME COLUMNS 
+```{r}
+data <- read_csv(files, id = "filename") |>
+  group_by(filename) |>
+  summarise(mean_temp = mean(Temperature, na.rm = TRUE),
+            mean_sal = mean(Salinity, na.rm = TRUE))
+data
+```
+
+### Other uses: a plot for every file (purrr)
+Maps and loops are awesome for more complicated processes too. For example, you can make a plot from each file and save it automatically.
+
+When you want a function’s side effect (saving a file, printing) rather than a returned value, use walk() instead of map().
+```{r}
+file_names <- dir(path = CondPath, pattern = ".csv") # just the file names
+
+save_temp_plot <- function(file_name) {
+  site_name <- str_remove(file_name, "\\.csv")
+
+  p <- read_csv(paste0(CondPath, "/", file_name)) |>
+    ggplot(aes(x = date, y = Temperature)) +
+    geom_line() +
+    labs(title = site_name, x = "Date", y = "Temperature (°C)")
+
+  ggsave(here("Week_13", "Outputs", paste0(site_name, "_temp.png")),
+         plot = p, width = 6, height = 4)
+}
+
+walk(file_names, save_temp_plot)
+```
+run `save_temp_plot(file_names[1])` first, once it works for one file, then add `walk()` . Walk is faster than for loop
+
+### Other uses: a plot for every file (for loop)
+```{r}
+file_names <- dir(path = CondPath, pattern = ".csv") # just the file names
+
+for (i in seq_along(file_names)) {
+
+  raw_data <- read_csv(paste0(CondPath, "/", file_names[i]))
+
+  site_name <- str_remove(file_names[i], "\\.csv") # drop ".csv" for the title
+
+  p <- ggplot(raw_data, aes(x = date, y = Temperature)) +
+    geom_line() +
+    labs(title = site_name, x = "Date", y = "Temperature (°C)")
+
+  ggsave(here("Week_13", "Outputs", paste0(site_name, "_temp.png")),
+         plot = p, width = 6, height = 4)
+}
+```
+check 
+```{r}
+dir(here("Week_13", "Outputs"), pattern = "_temp.png")
+```
+

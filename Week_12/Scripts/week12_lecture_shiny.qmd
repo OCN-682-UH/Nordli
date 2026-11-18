@@ -2,8 +2,7 @@
 title: "Week 12 - Lecture Notes"
 format: 
   html:
-     code-fold: true # code shown
-    code-summary: "Show Code"
+    code-fold: false # code shown
     mainfont: "Times new roman" # main body text
     fontsize: 12pt # main font size
     fontcolor: black # main font color
@@ -16,15 +15,18 @@ format:
 editor: visual
 warning: false
 theme: lumen
-knitr:
-  opts_chunk:
-    fig.path: "../Outputs/"
 ---
     
 # Intro to Shiny Apps
+## Load libraries
+```{r}
+library(shiny)
+library(tidyverse)
+library(bslib) # layout and theme
+```
 
 ## What is Shiny?
-- Link regular website and Code
+- Shiny links regular website with code
 
 ### When is it useful
 When we want to make R code accessible outside of an R or RStudio environment. For example:
@@ -34,29 +36,31 @@ When we want to make R code accessible outside of an R or RStudio environment. F
 
 
 ## App template
-- has to have it's own folder (inside week 12, future: own repo)
-- a regular R script HAS to be saved as "app.R" (name of app is name of FOLDER, not scripts)
+- has to have it's own folder (inside week 12, in the future: should be its own repo)
+- a regular R script HAS to be saved as "app.R" (name of app is name of FOLDER, not script name)
 
-Needs 3 things (if started from nothing)
-- ui (useinterface) <- fluidPage()
+### Needs 3 things 
+If started from nothing/blank R Script - can also choose New file -> Shiny Web App):
+- `ui` (useinterface) 
+    - `<- fluidPage()`
     - The ui (user interface) object dictates the appearance of the app. UI functions write HTML. For something to appear in your app, it needs to be in the UI.
-- server
-    -  The server() function contains rendering expressions that create the objects to display.
-- shinyAPP
-    - The server function and UI object are passed to the shinyApp() function to create a Shiny app object.
+- `server`
+    -  The `server()` function contains rendering expressions that create the objects to display.
+- `shinyAPP`
+    - The server function and UI object are passed to the `shinyApp()` function to create a Shiny app object.
 
+## Build App Around Inputs/Outputs
 ### Add Elements to your App as Arguments to fluidPage()
 ```{r}
-library(shiny)
-
 ui <- fluidPage('Hello World')
 
 server <- function(input, output){}
 
 shinyApp(ui = ui, server = server)
 ```
+This would just be a blank page with Hello World.
 
-DON'T FORGET PARANTHESES CLOSED
+*DON'T FORGET PARANTHESES CLOSED*
 ```{r}
 ui <- fluidPage(
    # Inputs functions
@@ -65,7 +69,7 @@ ui <- fluidPage(
 ```
 
 ### Create an Input with a *Input Function
-There are many types of inputs and the syntax for all of them is typeInput. To make a slider we use sliderInput().
+There are many types of inputs and the syntax for all of them is `typeInput`. To make a slider we use `sliderInput()`.
 
 These inputs make a bunch of HTML code behind the scene:
 ```{r}
@@ -75,20 +79,46 @@ sliderInput(inputId = "num", # ID name for the input (slider), connects input to
             )
 ```
 
+### Let’s Create an Input with Our Input Function
+Start with our blank app. Then we add our slider into the user interface.
+```{r}
+ui <- fluidPage(
+  sliderInput(inputId = "num", # ID name for the input
+            label = "Choose a number", # Label above the input
+            value = 25, min = 1, max = 100 # values for the slider
+            )
+)
+
+server <- function(input, output){}
+
+shinyApp(ui = ui, server = server)
+```
+
+## Syntax
+ 
+![syntax](../pngs/slidersyntax.png)
+
 ## Outputs
-- after sliderInput need COMMA ",", then put plotOutput
+
+![table](../pngs/outputtypes.png)
+
+### *Output()
+To display an output add it to `fluidPage()` with and `*Output()` function (e.g., `plotOutput("hist")`
 ```{r}
 ui <- fluidPage(
   sliderInput(inputId = "num", # ID name for the input
               label = "Choose a number here", # Label for the input
               value = 23, min = 1, max = 100 # values for the slider: start at 25 and range from 1-100
   ),
-  plotOutput("hist") # creates space (visualized in the order you code in), so if this was before sliderInput it would go above
+  plotOutput("hist") # creates space (visualized in the order you code in) for new plot but nothing happens yet, if this was before sliderInput, the plot would go above slider
 )
 ```
+- After `sliderInput` needs COMMA ",", then put `plotOutput`, the order of function in `fluidPage()` code chunk determined order on page.
+- "hist" is the name to give the output object, and "plot" is the type of display.
 
 ## Server: 
-What is the server? Mostly, R code. This is where the vegan meat of your app is located. function of input and output
+What is the server? Mostly, R code. This is where the vegan meat of your app is located: **function of input and output**.
+
 ### Use 3 Rules to Write the Server Function
 
 ```{r}
@@ -98,8 +128,9 @@ server <- function(input, output){
 ```
 #### Rule 1. Save Objects to Display to output$
 ```{r}
+#| eval: false
 server <- function(input, output){
-  output$hist <- # code, after $ Has to be IDENTICAL to plotOutput("inside here")
+  output$hist <- # code, after $ Has to be IDENTICAL to plotOutput("inside here") in ui
 }
 ```
 #### Rule 2. Build Objects to Display with render*({})
@@ -110,11 +141,13 @@ server <- function(input, output){
   })
 }
 ```
-Render a Plot: This will create a static plot first. Also we are using ggplot so add in the tidyverse:
-```{r}
-library(shiny)
-library(tidyverse)
 
+### Many Types of Renders
+![renders](../pngs/renders.png)
+
+##### Render a Plot: 
+This will create a static plot first. Also we are using `ggplot` so we need the `tidyverse` package
+```{r}
 ui <- fluidPage(
   sliderInput(inputId = "num", # ID name for the input
             label = "Choose a number", # Label above the input
@@ -137,39 +170,41 @@ server <- function(input, output){
 
 shinyApp(ui = ui, server = server)
 ```
+
 #### Rule 3. Access the input Values with input$
-We are going to replace 100 with input$num. Notice that num comes from what we put in our inputId. Exact same spelling.
+We are going to replace `100` with `input$num`. Notice that `num` comes from what we put in our `inputId`. Exact same spelling.
 ```{r}
 ui <- fluidPage(
-  sliderInput(inputId = "num", # ID name for the input
-            label = "Choose a number", # Label above the input
-            value = 25, min = 1, max = 100 # values for the slider
+  sliderInput(inputId = "num", # ID name for the input, this goes in renderPlot - x
+            label = "Choose a number", 
+            value = 25, min = 1, max = 100 
             ),
-  plotOutput("hist") # creates space for a plot called hist
+  plotOutput("hist")
 )
 
 server <- function(input, output){
 
    output$hist <- renderPlot({
 
-     # {} allows us to put all our R code in one nice chunk
+     
     data <- tibble(x = rnorm(input$num)) # number of points set by the slider  ## HERE
 
-    ggplot(data, aes(x = x)) + # make a histogram
+    ggplot(data, aes(x = x)) +
       geom_histogram()
   })
 }
 
 shinyApp(ui = ui, server = server)
 ```
-##### Let’s Add Two Types of Inputs
-Let’s say we want to write an input where the user can create whatever title they want by typing it into a box. Let’s update our ui to have a textInput():
 
+
+### Let’s Add Two Types of Inputs
+Let’s say we want to write an input where the user can create whatever title they want by typing it into a box. Let’s update our ui to have a `textInput()`:
 ```{r}
 ui <- fluidPage(
-  sliderInput(inputId = "num", # ID name for the input
-            label = "Choose a number", # Label above the input
-            value = 25, min = 1, max = 100 # values for the slider
+  sliderInput(inputId = "num",
+            label = "Choose a number", 
+            value = 25, min = 1, max = 100 
             ),
   textInput(inputId = "title", # new Id is title
           label = "Write a title",
@@ -178,8 +213,23 @@ ui <- fluidPage(
 )
 ```
 
+### Now Let’s Update the Server to Change the Title of the Plot
+```{r}
+server <- function(input, output){
 
+   output$hist <- renderPlot({
 
+    data <- tibble(x = rnorm(input$num))
+
+    ggplot(data, aes(x = x)) + 
+      geom_histogram() +
+      labs(title = input$title) # add a new title
+  })
+}
+```
+
+### Create Two Outputs
+Let’s say we want to add a data table below the histogram that has all the summary statistics. We need to add another ui element that creates a place to put the table. We will use `verbatimTextOutput()`:
 ```{r}
 ui <- fluidPage(
   sliderInput(inputId = "num", # ID name for the input
@@ -213,32 +263,158 @@ server <- function(input, output){
 shinyApp(ui=ui, server = server)
 ```
 
-## Cleaning the Code
-### reactive()
-creates an OBJECT 
-```{r}
-data <- reactive({rnorm(input$num)})
-```
-
+### Now Update the Server to Calculate the Summary Stats
+Here, we will use `renderPrint()`:
 ```{r}
 server <- function(input, output){
 
    output$hist <- renderPlot({
 
-     # {} allows us to put all our R code in one nice chunk
-    data <- reactive({ # change this tibble to reactive object
-      tibble(x = rnorm(input$num)) # number of points set by the slider
-    })
-    ggplot(data(), aes(x = x)) + # make a histogram
+    data <- tibble(x = rnorm(input$num)) 
+
+    ggplot(data, aes(x = x)) +
       geom_histogram() +
-      labs(title = input$title) # add a new title
+      labs(title = input$title) 
   })
 
    output$stats <- renderPrint({
-     summary(data()) # calculate summary stats based on the numbers
+     summary(rnorm(input$num)) # calculate summary stats based on the numbers
    })
 }
-
-shinyApp(ui=ui, server = server)
 ```
 
+
+## Cleaning the Code
+Here, we used `input$num` twice: once in the plot and once in the summary stats. This actually created two separate random distributions and the stats actually are not directly related to the plots. We need to build a reactive OBJECT so the same dataframe is being used throughout all the code.
+![reactive](../pngs/reactive.png)
+Here, we used `input$num` twice: once in the plot and once in the summary stats. This actually created two separate random distributions and the stats actually are not directly related to the plots. We need to build a reactive OBJECT so the same dataframe is being used throughout all the code.
+### A Reactive Object is Special in Two Ways
+You call a reactive object like a function:
+```{r}
+data <- reactive({rnorm(input$num)})
+```
+Reactive expressions cache their values, making your app run much faster.
+### Reactive Object
+```{r}
+ui <- fluidPage(
+  sliderInput(inputId = "num", 
+              label = "Choose a number", 
+              value = 25, min = 1, max = 100 
+  ),
+  textInput(inputId = "title", 
+            label = "Write a title",
+            value = "Histogram of Random Normal Values"),
+  plotOutput("hist"), 
+  verbatimTextOutput("stats") 
+)
+
+server <- function(input, output){
+
+  data <- reactive({ # creative a reactive object
+     tibble(x = rnorm(input$num)) # number of points set by the slider
+  })
+
+  output$hist <- renderPlot({
+    ggplot(data, aes(x = x)) +
+      geom_histogram() +
+      labs(title = input$title) 
+  })
+  output$stats <- renderPrint({
+    summary(rnorm(input$num)) 
+  })
+}
+shinyApp(ui = ui, server = server)
+```
+Careful! A reactive object must be **called like a function**. `ggplot(data, ...)` on line 23 is wrong — the plot needs `ggplot(data(), ...)`. Forgetting the parentheses is one of the most common Shiny errors (“object of type ‘closure’ is not subsettable”).
+
+### Reactive Object: Use data()
+```{r}
+server <- function(input, output){
+
+  data <- reactive({
+     tibble(x = rnorm(input$num)) 
+  })
+
+  output$hist <- renderPlot({
+    ggplot(data(), aes(x = x)) + # make a histogram
+      geom_histogram() +
+      labs(title = input$title) 
+  })
+  output$stats <- renderPrint({
+    summary(data()) # calculate summary stats based on the numbers
+  })
+}
+shinyApp(ui = ui, server = server)
+```
+
+## The stars Data
+We’ll use the `stars.csv` file in the `data/folder` of our app — sea star counts at 14 intertidal sites, each with its latitude and longitude:
+
+```{r}
+stars <- read_csv("../Data/stars.csv")
+
+glimpse(stars)
+```
+
+### Add a selectInput to Set a Minimum Count
+`selectInput(inputId, label, choices)` creates a dropdown menu. We’ll use it to pick a **minimum count** of sea stars:
+```{r}
+ui <- fluidPage(
+  selectInput(inputId = "min_stars", # ID name for the input
+              label = "Show sites with at least this many sea stars:",
+              choices = c(1, 5, 10, 20), # threshold options
+              selected = 5 # the threshold that shows first
+              ),
+  plotOutput("star_map") # creates space for the map
+)
+
+server <- function(input, output){}
+
+shinyApp(ui = ui, server = server)
+```
+
+### Filter the Data in the Server
+Use `filter()` inside a reactive to keep only the sites that meet the threshold. Each point is a site, sized by the number of sea stars counted there:
+```{r}
+server <- function(input, output){
+
+  kept_sites <- reactive({
+    stars |>
+      # selectInput returns choices as STRINGS, so convert back to numeric!
+      filter(star_no >= as.numeric(input$min_stars)) # sites above threshold
+  })
+
+  output$star_map <- renderPlot({
+    ggplot(kept_sites(), aes(x = long, y = lat)) +
+      geom_point(aes(size = star_no), color = "red") + # points sized by count
+      labs(size = "Sea stars counted")
+  })
+}
+shinyApp(ui = ui, server = server)
+```
+The `filter()` lives inside `reactive()`, so the map re-filters every time the user picks a new threshold — and both the reactive pattern and the `*Input/*Output` naming rules are exactly what we just learned with the histogram app.
+
+## Layout & Theming with {bslib}
+`{bslib}` is the modern way to build app layouts and themes — it replaces the older `shinythemes` and `shinydashboard` packages and works with Bootstrap 5.
+
+```{r}
+ui <- page_sidebar(
+  theme = bs_theme(bootswatch = "cerulean"), # pick a Bootswatch theme
+  sidebar = sidebar(                        # everything in the sidebar
+    sliderInput(inputId = "num",
+                label = "Choose a number",
+                value = 25, min = 1, max = 100),
+    textInput(inputId = "title",
+              label = "Write a title",
+              value = "Histogram of Random Normal Values")
+  ),
+  card(                                     # main content in cards
+    card_header("Histogram"),
+    plotOutput("hist")
+  ),
+  card(
+    card_header("Summary statistics"),
+    verbatimTextOutput("stats")
+  )
+)
+```
