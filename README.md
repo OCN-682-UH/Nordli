@@ -46,6 +46,10 @@ This will be where I submit my weekly assignments for the class _Data Science Fu
   * [NordliApp](https://github.com/OCN-682-UH/Nordli/tree/main/Week_12/NordliApp)
   * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/main/Week_12/Scripts)
   * [Data](https://github.com/OCN-682-UH/Nordli/tree/main/Week_12/Data)
+ * **Week_13**: Iterative Coding and Intro to Modeling
+  * [HW HTML](https://01a20b4e-a814-7f09-1712-908354756218.share.connect.posit.cloud)
+  * [Scripts](https://github.com/OCN-682-UH/Nordli/tree/main/Week_13/Scripts)
+  * [Data](https://github.com/OCN-682-UH/Nordli/tree/main/Week_13/Data)
 
 ## About Me
 
