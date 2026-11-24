@@ -1,0 +1,113 @@
+---
+title: "Week 13 - Homework"
+author: "Linnea Nordli"
+date: today
+format: 
+  html:
+    code-fold: true # code shown
+    code-summary: "Show Code"
+    mainfont: "Times new roman" # main body text
+    fontsize: 12pt # main font size
+    fontcolor: black # main font color
+    embed-resources: true # avoids the extra folders by placing outputs into the HTML itself 
+    toc: true
+    toc-depth: 3
+    toc-location: right
+    toc-title: "Table of Contents"
+    fig-align: center
+editor: visual
+warning: false
+theme: lumen
+---
+
+# Iterative Coding
+
+## Homework Assignment
+
+You have a set of 4 .csv files in `data/homework`. Each file is a timeseries of temperature and light data collected in tide pools in Oregon by Jenn Fields.
+
+- Bring in all 4 files
+- calculate the mean and standard deviation of both temperature (**Temp.C**) and light (**Intensity.lux**) for each tide pool.
+- Use *both* a `for loop` and `map()` functions in your script (basically, do it twice).
+
+**Due Tuesday 11/24/26 at 1pm**.
+
+## Load libraries
+```{r}
+library(tidyverse)
+library(here)
+library(stats)
+```
+
+## for loop
+### Bring in files 
+```{r}
+# Point to the folder on the computer
+hwPath <- here("Week_13", "Data", "HW_data")
+
+# List all files in that path matching a pattern (here, anything with .csv)
+# You can use regex to be more specific about filenames # can use any regex to only find files with certain words/letters/numbers
+files <- dir(path = hwPath, pattern = ".csv")
+
+files
+```
+
+### Mean and Standard Deviations
+#### Pre-allocate space for the loop
+```{r}
+# One row for each file and 3 columns
+hw_data <- tibble(filename = rep(NA, length(files)),
+                    mean_temp = rep(NA, length(files)),
+                    mean_ligth = rep(NA, length(files)),
+                    sd_temp = rep(NA, length(files)),
+                    sd_light = rep(NA, length(files)))
+
+hw_data
+```
+#### Write the basic code first
+```{r}
+# Test by reading in the first file (this is baseR)
+raw_data <- read_csv(paste0(hwPath, "/", files[1])) #paste 0 leaves NO space 
+head(raw_data)
+```
+#### Turn it into a for loop
+```{r}
+for (i in seq_along(files)) {
+
+  raw_data <- read_csv(paste0(hwPath, "/", files[i]))
+
+  hw_data$filename[i] <- files[i] # add filenames for each row
+  hw_data$mean_temp[i] <- mean(raw_data$Temp.C, na.rm = TRUE) # add temp means
+  hw_data$mean_ligth[i] <- mean(raw_data$Intensity.lux, na.rm = TRUE) # add light means
+  hw_data$sd_temp[i] <- sd(raw_data$Temp.C, na.rm = TRUE) # add standard deviation of temp
+  hw_data$sd_light[i] <- sd(raw_data$Intensity.lux, na.rm = TRUE) # add standard deviation of light
+
+}
+
+hw_data
+```
+
+## purrr map ()
+Do the exact same thing using `map()` functions
+
+### Find the files
+```{r}
+mapFiles <- dir(path = hwPath, pattern = ".csv", full.names = TRUE) # saves the entire path
+
+mapFiles
+```
+
+### Mean and Standard Deviations 
+```{r}
+mapData <- mapFiles |>
+  set_names() |> # names each list element with its file name
+  map(read_csv) |> # a list of 4 dataframes
+  list_rbind(names_to = "filename") |> # stack them; list names go in a "filename" column - first column name
+  group_by(filename) |> # calculate means and sd
+  summarise(mean_temp = mean(Temp.C, na.rm = TRUE),
+            mean_light = mean(Intensity.lux, na.rm = TRUE),
+            sd_temp = sd(Temp.C, na.rm = TRUE),
+            sd_light = sd(Intensity.lux, na.rm = TRUE))
+
+mapData
+```
